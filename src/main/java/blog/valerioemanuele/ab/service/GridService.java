@@ -3,6 +3,8 @@ package blog.valerioemanuele.ab.service;
 import java.math.BigInteger;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
 import blog.valerioemanuele.ab.exceptions.InvalidStepsException;
@@ -11,6 +13,7 @@ import blog.valerioemanuele.ab.model.InfiniteGrid;
 import blog.valerioemanuele.ab.model.Machine;
 import blog.valerioemanuele.ab.model.Point;
 import lombok.Data;
+import lombok.NonNull;
 
 @Service
 @Data
@@ -20,33 +23,35 @@ public class GridService {
 	private Machine machine;
 	
 	@Autowired
-	private MemoryInfiniteGrid memoryInfiniteGrid;
+	private ApplicationContext context;
+	
+	@Value("${threshold:65535}")
+	private Long threshold;
+	
+	private InfiniteGrid grid;
 	
 	public void gridFor(BigInteger numberOfSteps) {
-		//TODO: put a condition where the behaviour change if the num of step is bigger than a threshold? and save them in db
-		/*
-		 * Personally I would advice against loading a massive file directly into memory, 
-		 * rather try to load it in chunks or use some sort of temp file to store intermediate data.
-			https://stackoverflow.com/questions/29534063/check-if-there-is-enough-memory-before-allocating-byte-array
-		 */
 		validateInput(numberOfSteps);
+		grid = gridOf(numberOfSteps);
 		
 		for (BigInteger bi = BigInteger.ZERO; bi.compareTo(numberOfSteps) < 0; bi = bi.add(BigInteger.ONE)) {
-			moveMachine(memoryInfiniteGrid);
+			moveMachine(grid);
 		}
 	}
 
 	public void moveMachine(InfiniteGrid grid) {
-
-		boolean isCurrSquareBlack = grid.contains(machine.getPosition());
+		Point p = machinePosition();
+		p.setExecutionId(grid.executionId());
+		
+		boolean isCurrSquareBlack = grid.contains(p);
 		
 		if(isCurrSquareBlack) {
 			machine.counterClockwiseMove();
-			grid.remove(machine.getPosition());
+			grid.remove(p);
 		}
 		else {
 			machine.clockwiseMove();
-			grid.put(machine.getPosition());
+			grid.put(p);
 		}
 		machine.move();
 	}
@@ -63,6 +68,24 @@ public class GridService {
 	}
 	
 	public Point machinePosition() {
-		return machine.getPosition();
+		return Point.of(machine.getPosition());
+	}
+
+	/**
+	 * Returns a different instance of InfiniteGrid based on the number of steps to execute
+	 * If the number of step is under a threshold than the in RAM memory representation of the 
+	 * grid is used. Otherwise the database stored implementation is used
+	 * @param numberOfSteps - the number of step that the Machine will execute
+	 * @return an instance of MemoryInfiniteGrid if the num. of steps is under the threshold, 
+	 * 		   otherwise an instance of DatabaseInfiniteGrid
+	 */
+	public InfiniteGrid gridOf(@NonNull BigInteger numberOfSteps) {
+		if(numberOfSteps.compareTo(BigInteger.valueOf(threshold)) < 0) {
+			grid = context.getBean(MemoryInfiniteGrid.class);
+		}
+		else {
+			grid = context.getBean(DatabaseInfiniteGrid.class);
+		}
+		return grid;
 	}
 }

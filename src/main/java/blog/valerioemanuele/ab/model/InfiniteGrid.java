@@ -13,4 +13,8 @@ public interface InfiniteGrid {
 			throw new InvalidInputException("The input square is not valid");
 		}
 	}
+	
+	default String executionId() {
+		return "";
+	}
 }

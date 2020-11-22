@@ -16,6 +16,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.Setter;
+import lombok.ToString;
 
 /**
  * Represent a point in a 2D space
@@ -27,6 +28,7 @@ import lombok.Setter;
 @Setter
 @EqualsAndHashCode(exclude = {"id", "executionId"})
 @Builder
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
