@@ -42,18 +42,16 @@ public class Point {
 	private String executionId;
 	
 	
-	/**
-	 * Instatiate a new Point with the passed coordinates
-	 * @param x - the x coordinate
-	 * @param y - the y coordinate
- 	 * @return an instance of Point
-	 */
+	public static Point of(@NonNull BigInteger x, @NonNull BigInteger y, @NonNull String executionId) {
+		return Point.builder().x(x).y(y).executionId(executionId).build();
+	}
+	
 	public static Point of(@NonNull BigInteger x, @NonNull BigInteger y) {
-		return Point.builder().x(x).y(y).build();
+		return of(x, y, "");
 	}
 
 	public static Point of(@NonNull Point p) {
-		return of(p.getX(), p.getY());
+		return of(p.getX(), p.getY(), p.getExecutionId());
 	}
 	
 	/**

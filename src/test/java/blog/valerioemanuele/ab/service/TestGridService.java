@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.math.BigInteger;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,12 +31,6 @@ class TestGridService {
 	@Autowired
 	private DatabaseInfiniteGrid databaseGrid;
 	
-	@BeforeEach
-	private void initGrid() {
-		
-	}
-	
-	
 	@Test
 	void test_moveOfNegative_throwsException() {
 		assertThrows(InvalidStepsException.class, () -> gridService.gridFor(BigInteger.ONE.negate()));
@@ -50,7 +43,7 @@ class TestGridService {
 	
 	@Test
 	void test_initialConditions() {
-		assertEquals(0, memoryGrid.count());
+		assertEquals(BigInteger.ZERO, memoryGrid.countBlackSquares());
 	}
 	
 	
@@ -58,7 +51,7 @@ class TestGridService {
 	void test_moveOfOneStep() {
 		gridService.moveMachine(memoryGrid);
 		
-		assertEquals(1, memoryGrid.count());
+		assertEquals(BigInteger.ONE, memoryGrid.countBlackSquares());
 		assertTrue(Point.of(BigInteger.ZERO, BigInteger.ONE.negate()).equals(gridService.machinePosition()));
 		
 		assertEquals(Direction.DOWN, gridService.machineDirection());
@@ -73,7 +66,7 @@ class TestGridService {
 		
 		gridService.gridFor(BigInteger.ONE);
 		
-		assertEquals(0, memoryGrid.count());
+		assertEquals(BigInteger.ZERO, memoryGrid.countBlackSquares());
 		assertTrue(Point.of(BigInteger.ZERO, BigInteger.ONE).equals(gridService.machinePosition()));
 		
 		assertEquals(Direction.UP, gridService.machineDirection());
@@ -84,75 +77,75 @@ class TestGridService {
 		gridService.moveMachine(memoryGrid);
 		gridService.moveMachine(memoryGrid);
 		
-		assertEquals(2, memoryGrid.count());
+		assertEquals(BigInteger.TWO, memoryGrid.countBlackSquares());
 		assertTrue(Point.of(BigInteger.ONE.negate(), BigInteger.ONE.negate()).equals(gridService.machinePosition()));
 		assertEquals(Direction.LEFT, gridService.machineDirection());
 	}
 	
 	@Test
 	void test_moveOfXSteps() {
-		gridService.moveMachine(memoryGrid);
+		gridService.moveMachine(databaseGrid);
 		//Black Squares={0,0}
 		assertTrue(Point.of(BigInteger.ZERO, BigInteger.ONE.negate()).equals(gridService.machinePosition()));
 		
-		gridService.moveMachine(memoryGrid);
+		gridService.moveMachine(databaseGrid);
 		//Black Squares={0,0},{0,-1}
-		assertEquals(2, memoryGrid.count());
+		assertEquals(BigInteger.TWO, databaseGrid.countBlackSquares());
 		assertTrue(Point.of(BigInteger.ONE.negate(), BigInteger.ONE.negate()).equals(gridService.machinePosition()));
 		assertEquals(Direction.LEFT, gridService.machineDirection());
 		
-		gridService.moveMachine(memoryGrid);
+		gridService.moveMachine(databaseGrid);
 		//Black Squares={0,0},{0,-1},{-1,-1}
-		assertEquals(3, memoryGrid.count());
+		assertEquals(BigInteger.valueOf(3), databaseGrid.countBlackSquares());
 		assertTrue(Point.of(BigInteger.ONE.negate(), BigInteger.ZERO).equals(gridService.machinePosition()));
 		assertEquals(Direction.UP, gridService.machineDirection());
 		
-		gridService.moveMachine(memoryGrid);
+		gridService.moveMachine(databaseGrid);
 		//Black Squares={0,0},{0,-1},{-1,-1},{-1,0}
 		assertEquals(Direction.RIGHT, gridService.machineDirection());
-		assertEquals(4, memoryGrid.count());
+		assertEquals(BigInteger.valueOf(4), databaseGrid.countBlackSquares());
 		assertTrue(Point.of(BigInteger.ZERO, BigInteger.ZERO).equals(gridService.machinePosition()));
 		
-		gridService.moveMachine(memoryGrid);
+		gridService.moveMachine(databaseGrid);
 		//Black Squares={0,-1},{-1,-1},{-1,0}
 		assertEquals(Direction.UP, gridService.machineDirection());
-		assertEquals(3, memoryGrid.count());
+		assertEquals(BigInteger.valueOf(3), databaseGrid.countBlackSquares());
 		assertTrue(Point.of(BigInteger.ZERO, BigInteger.ONE).equals(gridService.machinePosition()));
 		
-		gridService.moveMachine(memoryGrid);
+		gridService.moveMachine(databaseGrid);
 		//Black Squares={0,-1},{-1,-1},{-1,0},{0,1}
 		assertEquals(Direction.RIGHT, gridService.machineDirection());
-		assertEquals(4, memoryGrid.count());
+		assertEquals(BigInteger.valueOf(4), databaseGrid.countBlackSquares());
 		assertTrue(Point.of(BigInteger.ONE, BigInteger.ONE).equals(gridService.machinePosition()));
 		
 		
-		gridService.moveMachine(memoryGrid);
+		gridService.moveMachine(databaseGrid);
 		//Black Squares={0,-1},{-1,-1},{-1,0},{0,1},{1,1}
 		assertEquals(Direction.DOWN, gridService.machineDirection());
-		assertEquals(5, memoryGrid.count());
+		assertEquals(BigInteger.valueOf(5), databaseGrid.countBlackSquares());
 		assertTrue(Point.of(BigInteger.ONE, BigInteger.ZERO).equals(gridService.machinePosition()));
 		
-		gridService.moveMachine(memoryGrid);
+		gridService.moveMachine(databaseGrid);
 		//Black Squares={0,-1},{-1,-1},{-1,0},{0,1},{1,1},{1,0}
 		assertEquals(Direction.LEFT, gridService.machineDirection());
-		assertEquals(6, memoryGrid.count());
+		assertEquals(BigInteger.valueOf(6), databaseGrid.countBlackSquares());
 		assertTrue(Point.of(BigInteger.ZERO, BigInteger.ZERO).equals(gridService.machinePosition()));
 		
-		gridService.moveMachine(memoryGrid);
+		gridService.moveMachine(databaseGrid);
 		//Black Squares={0,-1},{-1,-1},{-1,0},{0,1},{1,1},{1,0},{0,0}
 		assertEquals(Direction.UP, gridService.machineDirection());
-		assertEquals(7, memoryGrid.count());
+		assertEquals(BigInteger.valueOf(7), databaseGrid.countBlackSquares());
 		assertTrue(Point.of(BigInteger.ZERO, BigInteger.ONE).equals(gridService.machinePosition()));
 		
-		gridService.moveMachine(memoryGrid);
+		gridService.moveMachine(databaseGrid);
 		//Black Squares={0,-1},{-1,-1},{-1,0},{1,1},{1,0},{0,0}
-		assertEquals(6, memoryGrid.count());
+		assertEquals(BigInteger.valueOf(6), databaseGrid.countBlackSquares());
 		assertEquals(Direction.LEFT, gridService.machineDirection());
 		assertTrue(Point.of(BigInteger.ONE.negate(), BigInteger.ONE).equals(gridService.machinePosition()));
 		
-		gridService.moveMachine(memoryGrid);
+		gridService.moveMachine(databaseGrid);
 		//Black Squares={0,-1},{-1,-1},{-1,0},{1,1},{1,0},{0,0},{-1,1}
-		assertEquals(7, memoryGrid.count());
+		assertEquals(BigInteger.valueOf(7), databaseGrid.countBlackSquares());
 		assertEquals(Direction.UP, gridService.machineDirection());
 		assertTrue(Point.of(BigInteger.ONE.negate(), BigInteger.TWO).equals(gridService.machinePosition()));
 		
@@ -166,7 +159,7 @@ class TestGridService {
 	@Disabled
 	void test_BigStep() {
 		gridService.gridFor(BigInteger.valueOf(Integer.MAX_VALUE));
-		System.out.println("Number of black squares: "+memoryGrid.count());
+		System.out.println("Number of black squares: "+memoryGrid.countBlackSquares());
 		//Number of black squares: 247 785 763
 		// 30 minutes to complete
 	}
@@ -187,7 +180,7 @@ class TestGridService {
 		gridService.moveMachine(databaseGrid);
 		gridService.moveMachine(databaseGrid);
 		
-		assertEquals(2, databaseGrid.count());
+		assertEquals(BigInteger.TWO, databaseGrid.countBlackSquares());
 		assertTrue(Point.of(BigInteger.ONE.negate(), BigInteger.ONE.negate()).equals(gridService.machinePosition()));
 		assertEquals(Direction.LEFT, gridService.machineDirection());
 	}
@@ -200,13 +193,6 @@ class TestGridService {
 	void test_moveOfManySteps_withDatabaseGrid() {
 		gridService.gridFor(BigInteger.valueOf(Integer.MAX_VALUE));
 		assertTrue(true);
-	}
-	
-	@Test
-	void test_printGrid() {
-		
-		//TODO: for examples: 0 moves: infinite grid of whites
-		//negative number: bad request
 	}
 
 }

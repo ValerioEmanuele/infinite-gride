@@ -1,11 +1,14 @@
 package blog.valerioemanuele.ab.service;
 
+import java.math.BigInteger;
+import java.util.Optional;
 import java.util.UUID;
 
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import blog.valerioemanuele.ab.model.InfiniteGrid;
 import blog.valerioemanuele.ab.model.Point;
@@ -14,7 +17,8 @@ import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
-public class DatabaseInfiniteGrid implements InfiniteGrid{
+@Transactional
+public class DatabaseInfiniteGrid extends InfiniteGrid{
 	
 	private UUID executionId;
 	
@@ -36,8 +40,7 @@ public class DatabaseInfiniteGrid implements InfiniteGrid{
 	@Override
 	public boolean remove(Point point) {
 		validateInput(point);
-		infiniteGridRepository.delete(point);
-		return true;
+		return infiniteGridRepository.deleteByXAndYAndExecutionId(point.getX(), point.getY(), point.getExecutionId()) > 0;
 	}
 
 	@Override
@@ -48,12 +51,32 @@ public class DatabaseInfiniteGrid implements InfiniteGrid{
 	}
 
 	@Override
-	public long count() {
-		return infiniteGridRepository.count();
+	public BigInteger countBlackSquares() {
+		return infiniteGridRepository.countByExecutionId(executionId());
 	}
 	
 	@Override
 	public String executionId() {
 		return executionId.toString();
+	}
+
+	@Override
+	public Optional<Point> getMinXPointImpl() {
+		return Optional.ofNullable(infiniteGridRepository.findMinXByExecutionId(executionId()));
+	}
+
+	@Override
+	public Optional<Point> getMaxXPointImpl() {
+		return Optional.ofNullable(infiniteGridRepository.findMaxXByExecutionId(executionId()));
+	}
+
+	@Override
+	protected Optional<Point> getMinYPointImpl() {
+		return Optional.ofNullable(infiniteGridRepository.findMinYByExecutionId(executionId()));
+	}
+
+	@Override
+	protected Optional<Point> getMaxYPointImpl() {
+		return Optional.ofNullable(infiniteGridRepository.findMaxYByExecutionId(executionId()));
 	}
 }
